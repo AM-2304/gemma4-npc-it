@@ -1,0 +1,6 @@
+torch>=2.4.0
+transformers>=4.53.0
+accelerate>=0.34.0
+gradio>=4.42.0
+Pillow>=10.4.0
+spaces

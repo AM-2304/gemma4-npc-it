@@ -1,0 +1,6 @@
+#!/usr/bin/expect -f
+set timeout 10
+spawn ssh -o StrictHostKeyChecking=no pratikjalan_i1@10.198.63.20 "source ~/miniconda/bin/activate && conda activate gemma4npc && export CUDA_VISIBLE_DEVICES=3 && python -c 'import torch; print(\"CUDA:\", torch.cuda.is_available()); print(\"Device:\", torch.cuda.current_device())'"
+expect "*?assword:*"
+send "aide@2026\r"
+expect eof

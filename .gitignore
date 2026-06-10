@@ -1,0 +1,73 @@
+# Gemma4NPC .gitignore
+
+# === Environment ===
+.env
+.env.local
+.env.production
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# === Virtual Environments ===
+venv/
+.venv/
+env/
+
+# === Data (too large for git) ===
+data/raw/
+data/processed/
+data/final/
+data/npc_dialogue_v2/
+*.jsonl
+!data/process_pippa/first_names.json
+
+# === Model Outputs (very large) ===
+outputs/
+models/
+unsloth_compiled_cache/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# === llama.cpp build ===
+llama.cpp/
+
+# === Experiment Tracking ===
+wandb/
+mlruns/
+
+# === Jupyter ===
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# === Game Assets (generated) ===
+score.txt
+demos/space_shooter/assets/*.png
+demos/space_shooter/assets/*.wav
+
+# === Evaluation Results (regenerable) ===
+evaluation/results/
+evaluation/plots/
+
+# === Misc ===
+*.log
+*.tmp
+*.bak

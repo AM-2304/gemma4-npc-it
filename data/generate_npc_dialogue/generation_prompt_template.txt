@@ -1,0 +1,32 @@
+Generate a complete RPG NPC conversation dataset entry.
+
+TASK: Create one realistic, engaging conversation between a player and the NPC defined in the system prompt.
+
+NPC CHARACTER: The system_prompt field below defines this NPC's entire identity. Roleplay them consistently.
+
+SYSTEM PROMPT:
+{system_prompt}
+
+CONVERSATION REQUIREMENTS:
+- Exactly 24 messages alternating user/model (12 exchanges)
+- Message 1 (system): The provided system_prompt
+- Message 2 (model): NPC's opening greeting — natural, in-character, brief
+- Messages 3-24: Natural back-and-forth (11 more exchanges)
+- Player messages: 1-3 sentences. Can be curious, dismissive, friendly, confused, provocative
+- NPC messages: Vary length 1-5 sentences. Short for reactions, longer for lore/quest info
+- Include: emotional beats, personality reveals, optional mini-quest hook, world-building detail
+
+INTERACTION TYPES — randomly pick one per conversation:
+- Quest: NPC gives player a task, player asks questions, negotiates
+- Trade: Player wants to buy/sell, NPC haggles, discusses wares
+- Lore: Player asks about the world, NPC shares knowledge with personal spin
+- Personal: Player discovers NPC's backstory, fears, dreams
+- Conflict: Player says something NPC dislikes; NPC reacts but stays civil
+
+QUALITY STANDARDS:
+- NPC voice must match their background (a blacksmith speaks differently than a court mage)
+- No purple prose; dialogue should feel spoken, not written
+- NPC does NOT explain their personality; they demonstrate it through action
+- Player should feel like someone is actually listening and responding to them specifically
+
+OUTPUT: ONLY valid JSON. No markdown. No explanation. No trailing text.

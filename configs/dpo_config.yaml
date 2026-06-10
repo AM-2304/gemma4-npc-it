@@ -1,0 +1,41 @@
+# Gemma4NPC DPO Config — Preference alignment after SFT
+# SPDX-License-Identifier: Apache-2.0
+
+model:
+  base_model: "outputs/Gemma4NPC-it/merged_float16"
+  load_in_4bit: true
+  dtype: "bfloat16"
+
+lora:
+  r: 8                      # Lower rank for DPO (subtle adjustments)
+  lora_alpha: 8
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+data:
+  train_file: "data/dpo/preference_pairs.jsonl"
+  max_seq_length: 2048
+
+training:
+  output_dir: "outputs/Gemma4NPC-it-DPO"
+  beta: 0.1                 # KL penalty — low for creative tasks
+  loss_type: "sigmoid"       # Standard DPO
+  learning_rate: 5.0e-7      # Much lower than SFT
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  max_grad_norm: 0.3
+  warmup_steps: 50
+  bf16: true
+  fp16: false
+  logging_steps: 5
+  save_steps: 100
+  seed: 42
+  report_to: "wandb"
+  run_name: "Gemma4NPC-it-DPO-run1"

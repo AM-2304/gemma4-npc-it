@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Goblin's Bazaar - Haggling Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: rgba(16, 185, 129, 0.8);
+            /* Emerald Green */
+            --secondary: rgba(6, 182, 212, 0.8);
+            /* Deep Cyan */
+            --dark-glass: rgba(15, 23, 42, 0.85);
+            --light-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.15);
+            --gold: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* === SCENE LAYER === */
+        #scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            filter: blur(2px) brightness(0.6);
+        }
+
+        .goblin-img {
+            position: absolute;
+            bottom: 0vh;
+            left: 45%;
+            transform: translateX(-50%);
+            height: 42vh;
+            z-index: 2;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
+            transition: transform 0.3s ease;
+        }
+
+        .pedestal-img {
+            position: absolute;
+            bottom: -1vh;
+            left: 31%;
+            height: 18vh;
+            z-index: 3;
+            object-fit: contain;
+            transform: translateX(-50%);
+        }
+
+        .case-img {
+            position: absolute;
+            bottom: 16vh;
+            left: 31%;
+            height: 12vh;
+            z-index: 6;
+            object-fit: contain;
+            transform: translateX(-50%);
+        }
+
+        .amulet-img {
+            position: absolute;
+            bottom: 18vh;
+            left: 31%;
+            height: 8vh;
+            z-index: 5;
+            object-fit: contain;
+            transform: translateX(-50%);
+            filter: drop-shadow(0 0 15px #22c55e);
+            animation: float-glow 3s ease-in-out infinite alternate;
+        }
+
+        .lantern-img {
+            position: absolute;
+            top: -2vh;
+            height: 14vh;
+            z-index: 4;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(255, 150, 0, 0.6));
+            transform-origin: top center;
+            animation: flicker 4s infinite alternate, swing 3s ease-in-out infinite alternate;
+        }
+
+        .l1 {
+            left: 15%;
+            animation-delay: 0s, 0s;
+        }
+
+        .l2 {
+            left: 35%;
+            animation-delay: 1s, 0.5s;
+            top: -1vh;
+        }
+
+        .l3 {
+            left: 55%;
+            animation-delay: 2s, 1s;
+        }
+
+        .l4 {
+            left: 75%;
+            animation-delay: 1.5s, 0.2s;
+        }
+
+        @keyframes float-glow {
+            0% {
+                transform: translate(-50%, 0);
+                filter: drop-shadow(0 0 10px #22c55e);
+            }
+
+            100% {
+                transform: translate(-50%, -10px);
+                filter: drop-shadow(0 0 25px #22c55e) brightness(1.2);
+            }
+        }
+
+        @keyframes swing {
+            0% {
+                transform: rotate(-8deg);
+            }
+
+            100% {
+                transform: rotate(8deg);
+            }
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 30px rgba(255, 150, 0, 0.8));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px rgba(255, 120, 0, 0.6));
+            }
+        }
+
+        /* === UI LAYER === */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            pointer-events: none;
+            /* Let clicks pass through empty space */
+        }
+
+        .interactive {
+            pointer-events: auto;
+            /* Re-enable clicks for UI elements */
+        }
+
+        /* Sidebar - Game State */
+        .sidebar {
+            width: 380px;
+            background: var(--dark-glass);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-glass);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            height: 100%;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .merchant-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .merchant-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            /* In case of transparency */
+        }
+
+        .trade-window {
+            background: var(--light-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .trade-window h3 {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .artifact {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .price-tag {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .price-tag.updated {
+            transform: scale(1.2);
+            color: #10b981;
+            text-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+        }
+
+        .inventory {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .inventory h3 {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .item-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .item img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .item.gold {
+            border-color: var(--gold);
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Main Chat Interface */
+        .main-content {
+            flex: 1;
+            display: flex;
+            padding: 2rem;
+            justify-content: flex-end;
+            /* Align to right */
+            align-items: flex-end;
+            /* Align to bottom */
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            /* Slimmer to leave room for the scene */
+            height: 65vh;
+            /* Shorter to not cover top elements */
+            background: var(--dark-glass);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            /* REMOVED overflow: hidden so popups can break out */
+            position: relative;
+        }
+
+        /* Character Popups */
+        .portrait-popup {
+            position: absolute;
+            bottom: 70px;
+            /* Above the input bar */
+            width: 160px;
+            height: 160px;
+            z-index: 20;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+        }
+
+        .portrait-popup img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .portrait-left {
+            left: 0px;
+            /* Start inside */
+            transform: translateX(0) scale(0.8);
+        }
+
+        .portrait-right {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .portrait-right img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 2;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 1.2rem 1.5rem;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-npc {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-top-left-radius: 4px;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-top-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border-top-left-radius: 4px;
+        }
+
+        .dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .chat-input {
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            gap: 1rem;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            z-index: 2;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            width: 60px;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--dark-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 400px;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-desc {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .modal-close {
+            background: var(--light-glass);
+            border: 1px solid var(--border-glass);
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Scene Layer (Background & Assets in Sketch Style) -->
+    <div id="scene">
+        <img src="assets/bazaar_background_sketch.png" class="bg-img" alt="Bazaar Background">
+        <img src="assets/goblin.png" class="goblin-img" id="scene-goblin" alt="Goblin Merchant">
+
+        <img src="assets/pedestal.png" class="pedestal-img" alt="Pedestal">
+        <img src="assets/orb.png" class="case-img" alt="Magic Orb">
+        <img src="assets/amulet.png" class="amulet-img" alt="Amulet of Eternity">
+        <img src="assets/lantern.png" class="lantern-img l1" alt="Warm Lantern">
+        <img src="assets/lantern.png" class="lantern-img l2" alt="Warm Lantern">
+        <img src="assets/lantern.png" class="lantern-img l3" alt="Warm Lantern">
+        <img src="assets/lantern.png" class="lantern-img l4" alt="Warm Lantern">
+    </div>
+
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        <div class="sidebar interactive">
+            <div class="header">
+                <h1>The Goblin's Bazaar</h1>
+                <p style="color:#aaa; font-size:0.85rem;">Structured JSON Inference Demo</p>
+            </div>
+
+            <div class="merchant-profile">
+                <img src="assets/icon.png" alt="Gringo the Goblin"
+                    style="object-fit: cover; object-position: center top;">
+                <div>
+                    <h2 style="font-size:1.3rem;">Gringo the Greedy</h2>
+                    <p style="color:var(--gold); font-size:0.9rem;">Master Merchant</p>
+                </div>
+            </div>
+
+            <div class="trade-window">
+                <h3>Current Deal</h3>
+                <div class="artifact">
+                    <img src="assets/amulet.png" style="width:28px; filter: drop-shadow(0 0 5px #22c55e);">
+                    Amulet of Eternity
+                </div>
+                <!-- Asking price uses money.png -->
+                <div class="price-tag" id="price-display">
+                    500 <img src="assets/money.png" style="width: 45px; object-fit: contain;">
+                </div>
+                <p style="color:#aaa; font-size:0.8rem; margin-top:0.5rem;">Haggle the price down!</p>
+            </div>
+
+            <div class="inventory">
+                <h3>Your Inventory (click to interact)</h3>
+                <ul class="item-list">
+                    <!-- Added onclick events to trigger the item modal -->
+                    <li class="item gold" onclick="showItemModal('coins')">
+                        <img src="assets/coins.png" alt="Coins">
+                        <span>50 Gold Coins</span>
+                    </li>
+                    <li class="item" onclick="showItemModal('rock')">
+                        <img src="assets/rock.png" alt="Rock">
+                        <span style="color: #94a3b8;">Shiny Rock (Fake)</span>
+                    </li>
+                    <li class="item" onclick="showItemModal('boot')">
+                        <img src="assets/boot.png" alt="Boot">
+                        <span style="color: #8b5cf6;">Old Stinky Boot</span>
+                    </li>
+                    <li class="item" onclick="showItemModal('potion')">
+                        <img src="assets/potion.png" alt="Potion">
+                        <span style="color: #10b981;">Suspicious Potion</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content interactive">
+            <div class="chat-container">
+
+                <div class="chat-header">
+                    <div class="portrait-right" id="player-popup">
+                        <img src="assets/character.png" alt="Player">
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 600;">Haggle with Gringo</h2>
+                        <p style="font-size: 0.8rem; color: #10b981;">Ready to bargain...</p>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message msg-npc">
+                        Hehehe! Welcome to my stall, adventurer! You eye that Amulet of Eternity? It's a masterpiece.
+                        I'll
+                        let
+                        it go for 500 gold. No less! What do you say?
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="chat-input" onsubmit="sendMessage(event)">
+                    <input type="text" id="user-input" placeholder="Offer a trade or try to negotiate..."
+                        autocomplete="off">
+                    <button type="submit"><i class="fas fa-comment-dollar"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Modal -->
+    <div id="item-modal" class="modal interactive" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" class="modal-img" src="">
+            <h2 id="modal-title" class="modal-title">Title</h2>
+            <p id="modal-desc" class="modal-desc">Description</p>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Item descriptions data
+        const itemData = {
+            'coins': {
+                name: '50 Gold Coins',
+                desc: 'Standard currency of the realm. Just enough to buy a cheap health potion, but nowhere near enough for a rare artifact.',
+                img: 'assets/coins.png'
+            },
+            'rock': {
+                name: 'Shiny Rock (Fake)',
+                desc: 'A piece of painted quartz. To the untrained eye, it looks like a rare gemstone. Might be useful for tricking someone.',
+                img: 'assets/rock.png'
+            },
+            'boot': {
+                name: 'Old Stinky Boot',
+                desc: 'A worn-out leather boot you found in a swamp. Smells atrocious. Current market value: 0 gold.',
+                img: 'assets/boot.png'
+            },
+            'potion': {
+                name: 'Suspicious Potion',
+                desc: 'A bubbling purple liquid in a sealed vial. You don\'t know what it does, but it might be highly volatile or magical.',
+                img: 'assets/potion.png'
+            }
+        };
+
+        function showItemModal(itemId) {
+            const data = itemData[itemId];
+            if (!data) return;
+            document.getElementById('modal-img').src = data.img;
+            document.getElementById('modal-title').innerText = data.name;
+            document.getElementById('modal-desc').innerText = data.desc;
+
+            const modal = document.getElementById('item-modal');
+            modal.style.display = 'flex';
+            // Slight timeout to ensure display:flex is processed before adding active for CSS transition
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('item-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // Core Game Mechanics via Structured Inference
+        const systemPrompt = `You are Gringo the Greedy, a crafty, fast-talking goblin merchant at the Bazaar. 
+
+[YOUR INVENTORY]
+- The Amulet of Eternity (You are SELLING this. Do not accept another amulet in trade. Your starting price is 500 gold.)
+
+[PLAYER'S INVENTORY]
+- 50 Gold Coins
+- A Fake Shiny Rock
+- An Old Stinky Boot
+- A Suspicious Potion
+
+[BARTERING RULES]
+1. You are SELLING the Amulet. Your starting price is 500 gold.
+2. If the player offers an item, evaluate it based on your goblin logic. You are highly gullible to legends or shiny things.
+3. If they convince you an item is extremely valuable, you must adjust the 'agreed_price' of the Amulet mathematically:
+   - If they just talk you down, lower the price (e.g., 400).
+   - If they offer a straight trade (item for amulet) and you accept, set "agreed_price": 0.
+   - If they offer an item worth MORE than the amulet (e.g. worth 10000 gold) and you want it desperately, you must pay them the difference! Set "agreed_price" to a NEGATIVE number (e.g., -9500) to represent that YOU owe THEM gold plus the Amulet.
+4. NEVER hallucinate items. Correct them if they name something not in their inventory.
+5. Stay in character!
+
+CRITICAL: You MUST respond in EXACTLY this JSON format:
+{
+  "dialogue": "Your in-character spoken response",
+  "agreed_price": 500
+}`;
+
+        let chatHistory = [
+            { "role": "system", "content": systemPrompt },
+            { "role": "assistant", "content": '{\n  "dialogue": "Hehehe! Welcome to my stall, adventurer! You eye that Amulet of Eternity? It\'s a masterpiece. I\'ll let it go for 500 gold. No less! What do you say?",\n  "agreed_price": 500\n}' }
+        ];
+
+        let currentPrice = 500;
+
+        // Core Game Mechanics via Structured Inference
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const inputField = document.getElementById('user-input');
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            appendMessage('user', message);
+            inputField.value = '';
+            chatHistory.push({ "role": "user", "content": message });
+
+            const indicator = document.getElementById('typing-indicator');
+            indicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // Call local Llama.cpp / vLLM API with streaming
+                const response = await fetch('http://localhost:8080/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "Gemma4NPC-it",
+                        messages: chatHistory,
+                        temperature: 0.7,
+                        max_tokens: 200,
+                        stream: true,
+                        response_format: {
+                            type: "json_schema",
+                            json_schema: {
+                                name: "merchant_response",
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        dialogue: { type: "string" },
+                                        agreed_price: { type: "integer" }
+                                    },
+                                    required: ["dialogue", "agreed_price"],
+                                    additionalProperties: false
+                                }
+                            }
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Offline");
+
+                indicator.style.display = 'none';
+                
+                // Create a new message bubble for the stream
+                const chatBox = document.getElementById('chat-messages');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message msg-npc`;
+                chatBox.insertBefore(msgDiv, indicator);
+                scrollToBottom();
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let rawReply = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                const delta = data.choices[0].delta.content || "";
+                                rawReply += delta;
+                                
+                                // Show raw stream in UI temporarily (we'll clean it up after)
+                                msgDiv.innerText = rawReply;
+                                scrollToBottom();
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                chatHistory.push({ "role": "assistant", "content": rawReply });
+
+                // Parse the final JSON to get the actual dialogue and price
+                let parsed;
+                try {
+                    const cleaned = rawReply.replace(/```json|```/g, '').trim();
+                    parsed = JSON.parse(cleaned);
+                } catch (e) {
+                    parsed = { dialogue: rawReply, agreed_price: currentPrice };
+                }
+
+                // Finalize the bubble with just the dialogue
+                msgDiv.innerHTML = parsed.dialogue || parsed.dialogue_text || rawReply;
+
+                // Animate goblin slightly when speaking
+                const sceneGoblin = document.getElementById('scene-goblin');
+                sceneGoblin.style.transform = 'translateX(-50%) scale(1.05)';
+                setTimeout(() => {
+                    sceneGoblin.style.transform = 'translateX(-50%) scale(1)';
+                }, 400);
+
+                // Update UI Game State
+                if (parsed.agreed_price !== undefined && parsed.agreed_price !== currentPrice) {
+                    updatePriceUI(parsed.agreed_price);
+                    currentPrice = parsed.agreed_price;
+                }
+
+            } catch (error) {
+                indicator.style.display = 'none';
+                appendMessage('npc', '<i>[System Error: Could not connect to localhost:8080.]</i>');
+            }
+        }
+
+        function updatePriceUI(newPrice) {
+            const priceTag = document.getElementById('price-display');
+            // Re-render the HTML with the money.png icon
+            priceTag.innerHTML = `${newPrice} <img src="assets/money.png" style="width: 45px; object-fit: contain;">`;
+
+            // Trigger animation
+            priceTag.classList.remove('updated');
+            void priceTag.offsetWidth; // trigger reflow
+            priceTag.classList.add('updated');
+
+            setTimeout(() => {
+                priceTag.classList.remove('updated');
+            }, 600);
+        }
+
+        function appendMessage(sender, text) {
+            const chatBox = document.getElementById('chat-messages');
+            const indicator = document.getElementById('typing-indicator');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message msg-${sender}`;
+            msgDiv.innerHTML = text;
+            chatBox.insertBefore(msgDiv, indicator);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

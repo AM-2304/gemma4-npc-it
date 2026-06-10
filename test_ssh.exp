@@ -1,0 +1,6 @@
+#!/usr/bin/expect -f
+set timeout 10
+spawn ssh -o StrictHostKeyChecking=no pratikjalan_i1@10.198.63.20 "nvidia-smi"
+expect "*?assword:*"
+send "aide@2026\r"
+expect eof

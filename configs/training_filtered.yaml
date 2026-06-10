@@ -1,0 +1,55 @@
+# Gemma4NPC-Filtered Training Config — Content-filtered PIPPA only
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This variant has ~3,258 rows — insufficient for strong fine-tuning.
+# Published for transparency. See finetuning/Gemma4NPC_Filtered.ipynb for results discussion.
+
+model:
+  base_model: "google/gemma-4-12B-it"
+  load_in_4bit: true
+  dtype: "bfloat16"
+
+lora:
+  r: 12                     # Rank-12 (not 16) — smaller dataset
+  lora_alpha: 12
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+data:
+  train_file: "data/final/pippa_gemma4_filtered.jsonl"
+  max_seq_length: 4096
+  packing: false
+
+training:
+  output_dir: "outputs/Gemma4NPC-Filtered"
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_steps: 150          # Short warmup — smaller dataset
+  max_grad_norm: 0.5         # Slightly more permissive
+  weight_decay: 0.01
+  optim: "adamw_8bit"
+  logging_steps: 5           # More granular logging
+  save_steps: 100            # Save more frequently
+  fp16: false
+  bf16: true
+  seed: 42
+  report_to: "wandb"
+  save_total_limit: 3
+  run_name: "Gemma4NPC-Filtered-run1"
+
+generation:
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  max_new_tokens: 256

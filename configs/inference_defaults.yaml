@@ -1,0 +1,26 @@
+# Gemma4NPC Inference Defaults
+# SPDX-License-Identifier: Apache-2.0
+# These settings are calibrated for NPC roleplay — short, in-character responses.
+
+generation:
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  max_new_tokens: 256
+  do_sample: true
+  repetition_penalty: 1.0
+  thinking_mode: false       # Disable for NPC use (adds latency)
+
+context:
+  max_history_turns: 10      # Sliding window for conversation history
+  max_context_length: 4096   # Practical limit (model supports 262144)
+
+stop_sequences:
+  - "<turn|>"                # Gemma 4 EOS token
+
+# Device-specific recommendations:
+# RTX 3060 12GB:  Q4_K_M GGUF, n_gpu_layers=-1
+# RTX 3090 24GB:  Q8_0 GGUF, n_gpu_layers=-1
+# RTX 4090 24GB:  Q8_0 GGUF or float16
+# A100 40GB:      float16, full precision
+# Apple M1/M2:    MLX 4-bit, unified memory
