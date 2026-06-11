@@ -71,3 +71,7 @@ evaluation/plots/
 *.log
 *.tmp
 *.bak
+
+# === Documentation Cards ===
+MODEL_CARD.md
+DATASET_CARD.md
