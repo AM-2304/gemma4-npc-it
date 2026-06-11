@@ -83,10 +83,10 @@ Q-SART evaluates three core pillars:
 ## Model Access and Repository Links
 
 Model weights and datasets are published and accessible on Hugging Face:
-* **Hugging Face Collection**: Access the models, including E2B (5B) and E4B (8B) GGUF quantized models: [chimbiwide/gemma4npc Collection](https://huggingface.co/collections/chimbiwide/gemma4npc)
-* **Model Repository**: Access the flagship model weights: [spy5der/Gemma4NPC-it](https://huggingface.co/spy5der/Gemma4NPC-it)
-* **NPC Conversation Dataset**: Access the base conversational dataset: [spy5er/Gemma4-NPC-Dataset](https://huggingface.co/datasets/spy5er/Gemma4-NPC-Dataset)
-* **Quest Preference Alignment Dataset**: Access the DPO preference pair dataset: [spy5er/Gemma4NPC-Quest-Dataset](https://huggingface.co/datasets/spy5er/Gemma4NPC-Quest-Dataset)
+* **Chimbiwide's Original Hugging Face Collection**: Access the models, including E2B (5B) and E4B (8B) GGUF quantized models: [chimbiwide/gemma4npc Collection](https://huggingface.co/collections/chimbiwide/gemma4npc)
+* **Our Model Repository**: Access our flagship model weights: [spy5der/Gemma4NPC-it](https://huggingface.co/spy5der/Gemma4NPC-it)
+* **Our NPC Conversation Dataset**: Access our base conversational dataset: [spy5er/Gemma4-NPC-Dataset](https://huggingface.co/datasets/spy5er/Gemma4-NPC-Dataset)
+* **Our Quest Preference Alignment Dataset**: Access our DPO preference pair dataset: [spy5er/Gemma4NPC-Quest-Dataset](https://huggingface.co/datasets/spy5er/Gemma4NPC-Quest-Dataset)
 * **Base Model**: google/gemma-4-12b-it
 
 ---
