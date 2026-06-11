@@ -45,7 +45,7 @@ image = (
     .add_local_dir(
         ".",
         remote_path="/root/gemma4npc",
-        ignore=["venv", "models", "outputs", ".git"]
+        ignore=["venv", "models", "outputs", ".git", "llama.cpp"]
     )
 )
 
