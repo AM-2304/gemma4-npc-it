@@ -86,7 +86,7 @@ Baseline, un-fine-tuned models (such as raw `google/gemma-4-12b-it`) are exclude
 ## Model Access and Repository Links
 
 Model weights and datasets are published and accessible on Hugging Face:
-* **Model Repository**: Access our flagship model weights: [spy5der/Gemma4NPC-it](https://huggingface.co/spy5der/Gemma4NPC-it)
+* **Model Repository**: Access our flagship model weights: [spy5der/Gemma4NPC-it](https://huggingface.co/spy5er/Gemma4NPC-it)
 * **NPC Conversation Dataset**: Access our base conversational dataset: [spy5er/Gemma4-NPC-Dataset](https://huggingface.co/datasets/spy5er/Gemma4-NPC-Dataset)
 * **Quest Preference Alignment Dataset**: Access our DPO preference pair dataset: [spy5er/Gemma4NPC-Quest-Dataset](https://huggingface.co/datasets/spy5er/Gemma4NPC-Quest-Dataset)
 * **Base Model**: google/gemma-4-12b-it
